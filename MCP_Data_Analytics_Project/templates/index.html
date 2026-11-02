@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCP Data Analytics AI Agent</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>MCP Data Analytics AI Agent</h1>
+    <p class="subtitle">Pandas · RAG · Web Search — powered by MCP + LangChain</p>
+  </header>
+
+  <main class="layout">
+    <section class="panel upload-panel">
+      <h2>1. Upload a dataset</h2>
+      <p class="hint">Supported formats: CSV and Excel (.xlsx)</p>
+      <form id="upload-form">
+        <input type="file" id="file-input" accept=".csv,.xlsx" />
+        <button type="submit" id="upload-btn">Upload &amp; Load</button>
+      </form>
+      <div id="dataset-info" class="dataset-info hidden">
+        <h3>Active dataset</h3>
+        <p><strong id="dataset-name"></strong></p>
+        <pre id="dataset-details"></pre>
+      </div>
+      <div id="upload-status" class="status"></div>
+    </section>
+
+    <section class="panel chat-panel">
+      <h2>2. Ask a question</h2>
+      <div id="chat-log" class="chat-log"></div>
+      <form id="chat-form">
+        <textarea id="chat-input" rows="2" placeholder="e.g. What is the average fare by passenger class?"></textarea>
+        <button type="submit" id="send-btn">Ask</button>
+      </form>
+      <button type="button" id="clear-btn" class="secondary">Clear chat</button>
+      <div id="tool-trace" class="tool-trace hidden">
+        <h3>Tool execution</h3>
+        <pre id="tool-trace-content"></pre>
+      </div>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+# ---------------------------------------------------------------------------
+# MCP Data Analytics AI Agent - Python dependencies
+# Versions below were tested together on Python 3.13.
+# ---------------------------------------------------------------------------
+
+# Flask application
+flask==3.1.3
+
+# Data analytics
+pandas==3.1.0
+numpy==2.5.4
+openpyxl==3.1.5
+
+# MCP framework
+fastmcp==4.1.5
+mcp==2.3.0
+
+# LangChain and MCP integration
+langchain==1.4.7
+langchain-core==1.7.3
+langchain-openai==1.7.3
+
+# LLM API client
+openai==3.42.1
+
+# RAG and vector search
+sentence-transformers==6.2.0
+faiss-cpu==1.15.1
+
+# Environment configuration
+python-dotenv==1.2.4
+
+# Utilities
+requests==2.34.2
+uvicorn==0.54.0

@@ -1,0 +1,1135 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MCP AI Agent | RAG Assistant</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #1f2937;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            font-size: 20px;
+        }
+
+        header span {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .connection-status {
+            font-size: 12px;
+            color: #34d399;
+        }
+
+        /* MAIN LAYOUT */
+
+        .container {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 290px;
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .sidebar h3 {
+            font-size: 16px;
+        }
+
+        .upload-box {
+            border: 2px dashed #cbd5e1;
+            padding: 25px 15px;
+            border-radius: 10px;
+            text-align: center;
+            background: #f8fafc;
+        }
+
+        .upload-icon {
+            font-size: 35px;
+            margin-bottom: 10px;
+        }
+
+        .upload-box p {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 15px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            font-size: 12px;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 7px;
+            padding: 11px 15px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .upload-btn {
+            background: #2563eb;
+            color: white;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .upload-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .dataset-status {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+            padding: 15px;
+        }
+
+        .status-label {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .status-value {
+            font-size: 13px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .status-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .status-badge.ready {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .mcp-services {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 18px;
+        }
+
+        .service {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+            font-size: 13px;
+        }
+
+        .service-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eff6ff;
+        }
+
+        .service small {
+            display: block;
+            color: #94a3b8;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        /* CHAT AREA */
+
+        .chat-panel {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+            min-width: 0;
+        }
+
+        .chat-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h3 {
+            font-size: 16px;
+        }
+
+        .chat-header p {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        .clear-btn {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .clear-btn:hover {
+            background: #e2e8f0;
+        }
+
+        /* MESSAGES */
+
+        .chat-messages {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .welcome {
+            margin: auto;
+            text-align: center;
+            max-width: 450px;
+            padding: 20px;
+        }
+
+        .welcome-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .welcome h2 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .welcome p {
+            font-size: 13px;
+            line-height: 1.7;
+            color: #64748b;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
+            gap: 6px;
+        }
+
+        .message.user {
+            align-self: flex-end;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+        }
+
+        .message-label {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .message-content {
+            padding: 13px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        .user .message-content {
+            background: #2563eb;
+            color: white;
+            border-bottom-right-radius: 3px;
+        }
+
+        .ai .message-content {
+            background: #f1f5f9;
+            color: #334155;
+            border-bottom-left-radius: 3px;
+        }
+
+        /* TOOL EXECUTION */
+
+        .tool-details {
+            margin-top: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 11px;
+        }
+
+        .tool-details summary {
+            cursor: pointer;
+            font-weight: bold;
+            color: #475569;
+        }
+
+        .tool-item {
+            padding: 8px;
+            margin-top: 8px;
+            background: white;
+            border-radius: 5px;
+            overflow-wrap: anywhere;
+        }
+
+        .tool-item strong {
+            color: #2563eb;
+        }
+
+        .tool-item pre {
+            white-space: pre-wrap;
+            margin-top: 5px;
+            color: #64748b;
+        }
+
+        /* LOADING */
+
+        .typing {
+            font-size: 12px;
+            color: #64748b;
+            padding: 10px;
+        }
+
+        .typing span {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0.2;
+            }
+        }
+
+        /* CHAT INPUT */
+
+        .chat-input-area {
+            padding: 20px 25px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input textarea {
+            flex: 1;
+            resize: none;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            padding: 13px;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            outline: none;
+            min-height: 48px;
+            max-height: 120px;
+        }
+
+        .chat-input textarea:focus {
+            border-color: #2563eb;
+        }
+
+        .send-btn {
+            background: #2563eb;
+            color: white;
+            min-width: 85px;
+        }
+
+        .send-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .send-btn:disabled,
+        .upload-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .input-hint {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 10px;
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width: 800px) {
+
+            .container {
+                flex-direction: column;
+                overflow-y: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .chat-panel {
+                min-height: 600px;
+            }
+
+            .message {
+                max-width: 95%;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+
+    <header>
+
+        <div>
+            <h2>🤖 MCP AI Agent</h2>
+            <span>RAG + OpenStreetMap + OpenWeather</span>
+        </div>
+
+        <div class="connection-status">
+            ● Flask Application
+        </div>
+
+    </header>
+
+
+    <!-- MAIN CONTAINER -->
+
+    <div class="container">
+
+        <!-- SIDEBAR -->
+
+        <aside class="sidebar">
+
+            <h3>📁 Dataset Upload</h3>
+
+            <div class="upload-box">
+
+                <div class="upload-icon">📊</div>
+
+                <p>
+                    Upload your CSV or Excel dataset
+                    to start interacting with the AI Agent.
+                </p>
+
+                <input
+                    type="file"
+                    id="fileInput"
+                    accept=".csv,.xlsx"
+                >
+
+                <button
+                    class="upload-btn"
+                    id="uploadBtn"
+                    onclick="uploadFile()"
+                >
+                    Upload Dataset
+                </button>
+
+            </div>
+
+
+            <!-- DATASET STATUS -->
+
+            <div class="dataset-status">
+
+                <div class="status-label">
+                    CURRENT DATASET
+                </div>
+
+                <div
+                    class="status-value"
+                    id="datasetName"
+                >
+                    No dataset uploaded
+                </div>
+
+                <span
+                    class="status-badge"
+                    id="datasetBadge"
+                >
+                    Not Ready
+                </span>
+
+            </div>
+
+
+            <!-- MCP SERVICES -->
+
+            <div class="mcp-services">
+
+                <h3>MCP Services</h3>
+
+                <div class="service">
+
+                    <div class="service-icon">🗺️</div>
+
+                    <div>
+                        <strong>OpenStreetMap</strong>
+                        <small>Remote MCP / HTTP</small>
+                    </div>
+
+                </div>
+
+                <div class="service">
+
+                    <div class="service-icon">🌤️</div>
+
+                    <div>
+                        <strong>OpenWeather</strong>
+                        <small>Remote MCP / HTTP</small>
+                    </div>
+
+                </div>
+
+                <div class="service">
+
+                    <div class="service-icon">🧠</div>
+
+                    <div>
+                        <strong>RAG Server</strong>
+                        <small>Local MCP / STDIO</small>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+
+        <!-- CHAT PANEL -->
+
+        <main class="chat-panel">
+
+            <div class="chat-header">
+
+                <div>
+                    <h3>AI Assistant</h3>
+                    <p>
+                        Ask questions about your dataset,
+                        locations and weather.
+                    </p>
+                </div>
+
+                <button
+                    class="clear-btn"
+                    onclick="clearChat()"
+                >
+                    Clear Chat
+                </button>
+
+            </div>
+
+
+            <!-- CHAT MESSAGES -->
+
+            <div
+                class="chat-messages"
+                id="chatMessages"
+            >
+
+                <div class="welcome" id="welcome">
+
+                    <div class="welcome-icon">🤖</div>
+
+                    <h2>Welcome to MCP AI Agent</h2>
+
+                    <p>
+                        Upload a CSV or Excel file to begin.
+
+                        You can ask questions about your dataset
+                        and allow the AI Agent to use multiple
+                        MCP services such as RAG, OpenStreetMap
+                        and OpenWeather.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- CHAT INPUT -->
+
+            <div class="chat-input-area">
+
+                <div class="chat-input">
+
+                    <textarea
+                        id="questionInput"
+                        placeholder="Ask something about your dataset..."
+                        rows="1"
+                        onkeydown="handleKeyDown(event)"
+                    ></textarea>
+
+                    <button
+                        class="send-btn"
+                        id="sendBtn"
+                        onclick="sendMessage()"
+                    >
+                        Send ➤
+                    </button>
+
+                </div>
+
+                <div class="input-hint">
+                    Press Enter to send · Shift + Enter for a new line
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script>
+
+        // ====================================================
+        // GLOBAL STATE
+        // ====================================================
+
+        let datasetLoaded = false;
+
+
+        // ====================================================
+        // ADD MESSAGE TO CHAT
+        // ====================================================
+
+        function addMessage(
+            role,
+            message,
+            tools = []
+        ) {
+
+            const chat = document.getElementById(
+                "chatMessages"
+            );
+
+            const welcome = document.getElementById(
+                "welcome"
+            );
+
+            if (welcome) {
+                welcome.remove();
+            }
+
+            const messageDiv = document.createElement(
+                "div"
+            );
+
+            messageDiv.className = `message ${role}`;
+
+            const label = document.createElement("div");
+
+            label.className = "message-label";
+
+            label.textContent = role === "user"
+                ? "You"
+                : "AI Agent";
+
+            const content = document.createElement("div");
+
+            content.className = "message-content";
+
+            // Use textContent to avoid HTML injection.
+            content.textContent = message;
+
+            messageDiv.appendChild(label);
+
+            messageDiv.appendChild(content);
+
+
+            // TOOL EXECUTION DETAILS
+
+            if (tools && tools.length > 0) {
+
+                const details = document.createElement(
+                    "details"
+                );
+
+                details.className = "tool-details";
+
+                const summary = document.createElement(
+                    "summary"
+                );
+
+                summary.textContent =
+                    `MCP Tool Execution (${tools.length})`;
+
+                details.appendChild(summary);
+
+                tools.forEach(tool => {
+
+                    const item = document.createElement(
+                        "div"
+                    );
+
+                    item.className = "tool-item";
+
+                    const title = document.createElement(
+                        "strong"
+                    );
+
+                    title.textContent =
+                        tool.name || "MCP Tool";
+
+                    const result = document.createElement(
+                        "pre"
+                    );
+
+                    result.textContent =
+                        tool.content || "";
+
+                    item.appendChild(title);
+
+                    item.appendChild(result);
+
+                    details.appendChild(item);
+
+                });
+
+                messageDiv.appendChild(details);
+
+            }
+
+            chat.appendChild(messageDiv);
+
+            chat.scrollTop = chat.scrollHeight;
+
+        }
+
+
+        // ====================================================
+        // LOADING INDICATOR
+        // ====================================================
+
+        function showLoading() {
+
+            const chat = document.getElementById(
+                "chatMessages"
+            );
+
+            const loading = document.createElement("div");
+
+            loading.id = "loadingMessage";
+
+            loading.className = "typing";
+
+            loading.innerHTML =
+                "AI Agent is thinking<span> ● ● ●</span>";
+
+            chat.appendChild(loading);
+
+            chat.scrollTop = chat.scrollHeight;
+
+        }
+
+
+        function hideLoading() {
+
+            const loading = document.getElementById(
+                "loadingMessage"
+            );
+
+            if (loading) {
+                loading.remove();
+            }
+
+        }
+
+
+        // ====================================================
+        // UPLOAD DATASET
+        // ====================================================
+
+        async function uploadFile() {
+
+            const fileInput = document.getElementById(
+                "fileInput"
+            );
+
+            const uploadBtn = document.getElementById(
+                "uploadBtn"
+            );
+
+            const file = fileInput.files[0];
+
+            if (!file) {
+
+                alert("Please select a CSV or XLSX file.");
+
+                return;
+
+            }
+
+            const formData = new FormData();
+
+            formData.append("file", file);
+
+            uploadBtn.disabled = true;
+
+            uploadBtn.textContent = "Uploading...";
+
+            addMessage(
+                "user",
+                `Uploading dataset: ${file.name}`
+            );
+
+            showLoading();
+
+            try {
+
+                const response = await fetch(
+                    "/upload",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+                const result = await response.json();
+
+                hideLoading();
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        result.error || "Upload failed."
+                    );
+
+                }
+
+                datasetLoaded = true;
+
+                // Update dataset information
+                document.getElementById(
+                    "datasetName"
+                ).textContent = result.filename;
+
+                const badge = document.getElementById(
+                    "datasetBadge"
+                );
+
+                badge.textContent = "Ready";
+
+                badge.classList.add("ready");
+
+                addMessage(
+                    "ai",
+                    result.agent_response ||
+                    "Dataset uploaded successfully.",
+                    result.tool_execution || []
+                );
+
+                // Reset chat input
+                fileInput.value = "";
+
+            }
+
+            catch (error) {
+
+                hideLoading();
+
+                addMessage(
+                    "ai",
+                    "Upload Error: " + error.message
+                );
+
+            }
+
+            finally {
+
+                uploadBtn.disabled = false;
+
+                uploadBtn.textContent = "Upload Dataset";
+
+            }
+
+        }
+
+
+        // ====================================================
+        // SEND MESSAGE TO AI AGENT
+        // ====================================================
+
+        async function sendMessage() {
+
+            const input = document.getElementById(
+                "questionInput"
+            );
+
+            const sendBtn = document.getElementById(
+                "sendBtn"
+            );
+
+            const query = input.value.trim();
+
+            if (!query) {
+                return;
+            }
+
+            if (!datasetLoaded) {
+
+                alert(
+                    "Please upload a dataset first."
+                );
+
+                return;
+
+            }
+
+            addMessage("user", query);
+
+            input.value = "";
+
+            sendBtn.disabled = true;
+
+            showLoading();
+
+            try {
+
+                const response = await fetch(
+                    "/ask",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            query: query
+                        })
+
+                    }
+                );
+
+                const result = await response.json();
+
+                hideLoading();
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        result.error || "AI Agent request failed."
+                    );
+
+                }
+
+                addMessage(
+                    "ai",
+                    result.answer,
+                    result.tool_execution || []
+                );
+
+            }
+
+            catch (error) {
+
+                hideLoading();
+
+                addMessage(
+                    "ai",
+                    "Agent Error: " + error.message
+                );
+
+            }
+
+            finally {
+
+                sendBtn.disabled = false;
+
+                input.focus();
+
+            }
+
+        }
+
+
+        // ====================================================
+        // CLEAR CHAT
+        // ====================================================
+
+        async function clearChat() {
+
+            try {
+
+                await fetch(
+                    "/clear-chat",
+                    {
+                        method: "POST"
+                    }
+                );
+
+                const chat = document.getElementById(
+                    "chatMessages"
+                );
+
+                chat.innerHTML = `
+
+                    <div class="welcome" id="welcome">
+
+                        <div class="welcome-icon">🤖</div>
+
+                        <h2>Welcome to MCP AI Agent</h2>
+
+                        <p>
+                            Your conversation has been cleared.
+                            You can continue asking questions
+                            about your uploaded dataset.
+                        </p>
+
+                    </div>
+
+                `;
+
+            }
+
+            catch (error) {
+
+                alert(
+                    "Unable to clear chat."
+                );
+
+            }
+
+        }
+
+
+        // ====================================================
+        // ENTER KEY HANDLER
+        // ====================================================
+
+        function handleKeyDown(event) {
+
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
+
+                event.preventDefault();
+
+                sendMessage();
+
+            }
+
+        }
+
+
+        // ====================================================
+        // CHECK DATASET STATUS
+        // ====================================================
+
+        async function checkStatus() {
+
+            try {
+
+                const response = await fetch("/status");
+
+                const result = await response.json();
+
+                datasetLoaded = result.dataset_loaded;
+
+                if (datasetLoaded) {
+
+                    document.getElementById(
+                        "datasetName"
+                    ).textContent = result.filename;
+
+                    const badge = document.getElementById(
+                        "datasetBadge"
+                    );
+
+                    badge.textContent = "Ready";
+
+                    badge.classList.add("ready");
+
+                }
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Unable to check dataset status:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        // ====================================================
+        // INITIALIZE
+        // ====================================================
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function() {
+
+                checkStatus();
+
+            }
+        );
+
+    </script>
+
+</body>
+</html>

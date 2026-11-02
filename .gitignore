@@ -1,0 +1,189 @@
+# =============================================================================
+# .gitignore - ai_python_projects (single repo holding all sub-projects)
+#
+# Contains: AgenticAIProject, AIAgentProject, MCP_Data_Analytics_Project,
+#           RAGProject (+ repo-root runtime folders)
+#
+# How patterns resolve (important):
+#   .venv/        -> matches a dir named .venv at ANY depth (root + sub-projects)
+#   **/uploads/*  -> matches contents of every uploads/ dir at any depth
+#   /data/        -> anchored to the REPO ROOT only (keeps <Project>/data)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 1. Python virtual environments (root .venv + any per-project venv)
+# -----------------------------------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+pyvenv.cfg
+.python-version
+pip-log.txt
+pip-delete-this-directory.txt
+
+# -----------------------------------------------------------------------------
+# 2. Byte-compiled files, caches and test artifacts
+# -----------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.hypothesis/
+.ipynb_checkpoints/
+cython_debug/
+
+# -----------------------------------------------------------------------------
+# 3. Packaging / build output
+# -----------------------------------------------------------------------------
+build/
+dist/
+sdist/
+eggs/
+.eggs/
+wheels/
+*.egg
+*.egg-info/
+MANIFEST
+
+# -----------------------------------------------------------------------------
+# 4. Secrets & local configuration -- NEVER commit real API keys
+#    (.env.example IS committed so others know which variables are required)
+# -----------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+*.pem
+*.key
+*.p12
+credentials.json
+serviceAccount*.json
+secrets.json
+.netrc
+_netrc
+.aws/
+
+# -----------------------------------------------------------------------------
+# 5. IDE / editor files (JetBrains .idea, VS Code, Vim, ...)
+# -----------------------------------------------------------------------------
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# -----------------------------------------------------------------------------
+# 6. Operating-system junk
+# -----------------------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# -----------------------------------------------------------------------------
+# 7. Logs & temporary files (folders stay in the repo via .gitkeep)
+# -----------------------------------------------------------------------------
+*.log
+**/logs/*
+!**/logs/.gitkeep
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.orig
+
+# -----------------------------------------------------------------------------
+# 8. Runtime uploads (user-uploaded datasets, re-created by the apps at runtime)
+#    Contents ignored, folder preserved through .gitkeep
+# -----------------------------------------------------------------------------
+**/uploads/*
+!**/uploads/.gitkeep
+
+# -----------------------------------------------------------------------------
+# 9. Generated RAG / vector-store artifacts (FAISS index, pickled texts, Chroma)
+#    These are rebuilt by rag_load_dataset -- do not version them
+# -----------------------------------------------------------------------------
+**/vector_store/*
+!**/vector_store/.gitkeep
+**/vectorstore/*
+!**/vectorstore/.gitkeep
+chroma/
+chroma.sqlite3
+*.faiss
+*.pkl
+*.pickle
+*.ann
+*.hnsw
+*.sqlite
+*.sqlite3
+*.db
+
+# -----------------------------------------------------------------------------
+# 10. Model weights & ML caches (large binaries -- download/regenerate instead)
+# -----------------------------------------------------------------------------
+.cache/
+.huggingface/
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.onnx
+*.h5
+*.pb
+*.tflite
+*.ckpt
+*.gguf
+*.msgpack
+
+# -----------------------------------------------------------------------------
+# 11. Repo-root runtime folders (created when an app is run from the repo root).
+#     Anchored with a leading "/" so per-project sample data such as
+#     AIAgentProject/data/ and MCP_Data_Analytics_Project/data/ IS committed.
+# -----------------------------------------------------------------------------
+/data/
+/uploads/
+/vector_store/
+/Dataset/
+
+# -----------------------------------------------------------------------------
+# Notes
+# -----------------------------------------------------------------------------
+# - The per-project .gitignore files (MCP_Data_Analytics_Project, RAGProject)
+#   are kept on purpose; their rules are additive to this file.
+# - Small sample datasets (data/*.csv, data/*.xlsx) and docs (*.md, *.pdf) are
+#   committed intentionally. To keep big datasets out of GitHub instead,
+#   uncomment the lines below:
+# *.csv
+# *.xlsx
+# - Anything ignored here can still be committed with: git add -f <path>

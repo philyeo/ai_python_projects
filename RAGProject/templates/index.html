@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Workbook questions</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+</head>
+<body>
+  <div class="sheet">
+    <header class="mast">
+      <p class="kicker">Spreadsheet</p>
+      <h1>Workbook questions</h1>
+      <p class="lede">Read an Excel file, then ask about the rows it contains.</p>
+    </header>
+
+    {% if error %}
+    <p class="banner" role="alert">{{ error }}</p>
+    {% endif %}
+
+    <section class="block" aria-labelledby="open-heading">
+      <h2 id="open-heading">Open a workbook</h2>
+      <form class="file-form" method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data">
+        <div class="field">
+          <label for="workbook">Excel file</label>
+          <input id="workbook" name="file" type="file" accept=".xlsx,.xlsm,.xls">
+        </div>
+        <div class="field field-narrow">
+          <label for="header-row">Header row</label>
+          <input id="header-row" name="header_row" type="number" min="1" step="1" value="{{ header_row }}" inputmode="numeric">
+          <p class="hint">Leave this blank. Each sheet’s header is detected on its own. Enter a row only when the detection is wrong.</p>
+        </div>
+        <button type="submit">Read workbook</button>
+      </form>
+      <p class="hint">Reading embeds every data row. A small file takes a few seconds.</p>
+    </section>
+
+    {% if loaded %}
+    <section class="block" aria-labelledby="read-heading">
+      <h2 id="read-heading">What was read</h2>
+      <p class="file-name">{{ filename }}</p>
+      {% if warnings %}
+      <ul class="warnings">
+        {% for warning in warnings %}
+        <li>{{ warning }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      {% for table in tables %}
+      <article class="table-block">
+        <h3>{{ table.sheet }}</h3>
+        <p class="meta">Header on row {{ table.header_row }}. {{ table.row_count }} data row{{ "s" if table.row_count != 1 else "" }}.</p>
+        {% if table.columns %}
+        <p class="meta">Columns: {{ table.columns | join(", ") }}</p>
+        {% endif %}
+        {% if table.notes %}
+        <h4>Text above the table</h4>
+        <p class="notes">{{ table.notes }}</p>
+        {% endif %}
+        {% if table.preview %}
+        <div class="table-scroll">
+          <table>
+            <caption>
+              {% if table.preview_limited %}First {{ table.preview | length }} of {{ table.row_count }} rows{% else %}All {{ table.row_count }} rows{% endif %}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Row</th>
+                {% for column in table.columns %}
+                <th scope="col">{{ column }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for record in table.preview %}
+              <tr>
+                <th scope="row">{{ record.excel_row }}</th>
+                {% for column in table.columns %}
+                <td>{{ record.values[column] }}</td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+      </article>
+      {% endfor %}
+    </section>
+
+    <section class="block" aria-labelledby="ask-heading">
+      <h2 id="ask-heading">Ask</h2>
+      <form class="ask-form" method="post" action="{{ url_for('ask') }}">
+        <label for="question">Question</label>
+        <textarea id="question" name="question" rows="4" required>{{ question }}</textarea>
+        <button type="submit">Answer from the workbook</button>
+      </form>
+    </section>
+    {% endif %}
+
+    {% if answer %}
+    <section class="block answer-block" aria-labelledby="answer-heading">
+      <h2 id="answer-heading">Answer</h2>
+      {% if question %}
+      <p class="asked">{{ question }}</p>
+      {% endif %}
+      <div class="prose">{{ answer }}</div>
+      {% if sources %}
+      <h3>Rows used</h3>
+      <ol class="sources">
+        {% for source in sources %}
+        <li>
+          <p class="source-title">
+            {{ source.title }}
+            {% if source.score is not none %}<span class="match">match {{ "%.2f"|format(source.score) }}</span>{% endif %}
+          </p>
+          <p class="source-body">{{ source.display }}</p>
+        </li>
+        {% endfor %}
+      </ol>
+      {% endif %}
+    </section>
+    {% endif %}
+
+    <footer>
+      <p>The index stays in memory for this run. A new file replaces it, and closing the app clears it.</p>
+    </footer>
+  </div>
+</body>
+</html>
