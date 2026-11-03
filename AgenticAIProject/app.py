@@ -290,12 +290,35 @@ def execute_agent(user_message, history=None):
 
         if isinstance(answer, list):
 
-            answer = "\n".join(
-                str(item.get("text", item))
-                if isinstance(item, dict)
-                else str(item)
-                for item in answer
-            )
+            parts = []
+
+            for item in answer:
+
+                # Skip the model's hidden reasoning blocks so only the
+                # visible answer text is shown to the user.
+                if isinstance(item, dict):
+
+                    if item.get("type") in ("reasoning", "reasoning_content"):
+                        continue
+
+                    text = item.get("text")
+
+                    if isinstance(text, str):
+                        parts.append(text)
+                    elif text is not None:
+                        parts.append(str(text))
+                    else:
+                        parts.append(str(item))
+
+                elif isinstance(item, str):
+
+                    parts.append(item)
+
+                else:
+
+                    parts.append(str(item))
+
+            answer = "\n".join(part for part in parts if part)
 
         answer = str(answer)
 
