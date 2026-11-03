@@ -33,7 +33,7 @@ Tool names are namespaced by server name, so the agent sees:
 |-------------|-----------------------------------------------------------------------|
 | `pandas_*`  | `load_dataset`, `get_dataset_info`, `get_column_summary`, `aggregate_data`, `groupby_data`, `filter_dataset` |
 | `rag_*`     | `load_dataset`, `search_dataset`, `get_dataset_info`                  |
-| `tavily_*`  | `search`, `extract`, `crawl`, `map`, `research`                       |
+| `tavily_*`  | `search`, `extract` (+ `crawl`, `map`, `research` with an API key)    |
 
 ---
 
@@ -45,7 +45,7 @@ Tool names are namespaced by server name, so the agent sees:
 - LangChain (`langchain.mcp.MCPAdapter`, `langchain.agents.create_agent`)
 - OpenRouter-compatible OpenAI API (`langchain_openai.ChatOpenAI`)
 - FAISS + Sentence Transformers (RAG)
-- Tavily Web Search MCP (https://docs.tavily.com/documentation/mcp)
+- Tavily Web Search MCP — keyless by default (https://docs.tavily.com/documentation/keyless)
 
 ---
 
@@ -93,8 +93,9 @@ SQL is ever executed.
 **RAG MCP** — indexes each row of the uploaded dataset as a text chunk and
 performs FAISS-based semantic search.
 
-**Web Search MCP** — Tavily's remote MCP provides `search`, `extract`, `crawl`,
-`map` and `research` tools for external information.
+**Web Search MCP** — Tavily's remote MCP provides `search` and `extract` via
+keyless access by default; setting a `TAVILY_API_KEY` adds `crawl`, `map` and
+`research`.
 
 **AI agent** — interprets questions, selects the right tools, can call multiple
 tools in one answer, and combines results while labelling their source.
@@ -108,8 +109,8 @@ tools in one answer, and combines results while labelling their source.
 4. `copy .env.example .env` and fill in your credentials:
    - `OPENROUTER_API_KEY` — required for the LLM.
    - `MODEL` — any OpenRouter model id (default `openai/gpt-4o-mini`).
-   - `TAVILY_API_KEY` — optional; Tavily offers keyless access for Search
-     and Extract, and OAuth for full access.
+   - `TAVILY_API_KEY` — optional. Leave blank to use keyless access (Search +
+     Extract, rate-limited); set a key to unlock all tools and higher limits.
 5. Place sample datasets in `data/` (Titanic CSV and `ProjectPlan.xlsx` are
    already included).
 
